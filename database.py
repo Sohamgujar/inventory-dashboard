@@ -35,4 +35,21 @@ CREATE TABLE IF NOT EXISTS order_items (
 )
 """)
 
+# Home delivery orders table
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS home_delivery_orders (
+    delivery_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_name TEXT,
+    mobile_number TEXT,
+    address TEXT,
+    product_id INTEGER,
+    product_name TEXT,
+    quantity INTEGER,
+    price REAL,
+    total_amount REAL,
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+""")
+
+
 conn.commit()
