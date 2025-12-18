@@ -50,6 +50,12 @@ CREATE TABLE IF NOT EXISTS home_delivery_orders (
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
 """)
+# Add delivery status column safely
+try:
+    cursor.execute("ALTER TABLE home_delivery_orders ADD COLUMN status TEXT DEFAULT 'Pending'")
+except:
+    pass
+
 
 
 conn.commit()
