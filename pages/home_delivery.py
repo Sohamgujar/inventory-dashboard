@@ -1,9 +1,5 @@
 import streamlit as st
 import sqlite3
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen import canvas
-from datetime import datetime
-import os
 
 conn = sqlite3.connect("inventory.db", check_same_thread=False)
 cursor = conn.cursor()
@@ -79,26 +75,50 @@ if st.session_state.delivery_cart:
 
     st.markdown(f"### 💰 Total Amount: ₹ {grand_total}")
 
-    delivery_status = st.selectbox("Delivery Status", ["Pending", "Delivered"])
+    delivery_status = st.selectbox(
+        "Delivery Status", ["Pending", "Delivered"]
+    )
 
-    if st.button("📄 Generate Delivery Invoice"):
+    if st.button("✅ Place Home Delivery Order"):
         if not customer_name or not mobile or not address:
             st.error("Please fill customer details")
         else:
-            # Save delivery order
             for item in st.session_state.delivery_cart:
-                cursor.execute("""
-                    INSERT INTO home_delivery_orders
-                    (customer_name, mobile_number, address,
-                     product_id, product_name, quantity,
-                     price, total_amount, status)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    customer_name, mobile, address,
-                    item["product_id"], item["name"],
-                    item["qty"], item["price"],
-                    item["total"], delivery_status
-                ))
+                try:
+                    cursor.execute("""
+                        INSERT INTO home_delivery_orders
+                        (customer_name, mobile_number, address,
+                         product_id, product_name, quantity,
+                         price, total_amount, status)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (
+                        customer_name,
+                        mobile,
+                        address,
+                        item["product_id"],
+                        item["name"],
+                        item["qty"],
+                        item["price"],
+                        item["total"],
+                        delivery_status
+                    ))
+                except:
+                    cursor.execute("""
+                        INSERT INTO home_delivery_orders
+                        (customer_name, mobile_number, address,
+                         product_id, product_name, quantity,
+                         price, total_amount)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (
+                        customer_name,
+                        mobile,
+                        address,
+                        item["product_id"],
+                        item["name"],
+                        item["qty"],
+                        item["price"],
+                        item["total"]
+                    ))
 
                 # Reduce inventory
                 cursor.execute("""
@@ -109,45 +129,7 @@ if st.session_state.delivery_cart:
 
             conn.commit()
 
-            # Generate PDF invoice
-            os.makedirs("delivery_bills", exist_ok=True)
-            file_name = f"delivery_bills/delivery_{datetime.now().timestamp()}.pdf"
-
-            pdf = canvas.Canvas(file_name, pagesize=A4)
-            pdf.setFont("Helvetica", 12)
-
-            y = 800
-            pdf.drawString(50, y, "HOME DELIVERY INVOICE")
-            y -= 30
-            pdf.drawString(50, y, f"Customer: {customer_name}")
-            y -= 20
-            pdf.drawString(50, y, f"Mobile: {mobile}")
-            y -= 20
-            pdf.drawString(50, y, f"Address: {address}")
-            y -= 20
-            pdf.drawString(50, y, f"Status: {delivery_status}")
-            y -= 30
-
-            for item in st.session_state.delivery_cart:
-                pdf.drawString(
-                    50, y,
-                    f"{item['name']} | Qty {item['qty']} | ₹ {item['total']}"
-                )
-                y -= 20
-
-            y -= 20
-            pdf.drawString(50, y, f"Total Amount: ₹ {grand_total}")
-            pdf.save()
-
             st.success("Home delivery order placed successfully 🚚")
-
-            with open(file_name, "rb") as f:
-                st.download_button(
-                    "⬇️ Download Delivery Invoice (PDF)",
-                    f,
-                    file_name="home_delivery_invoice.pdf"
-                )
-
             st.session_state.delivery_cart = []
 else:
     st.info("Delivery cart is empty")
