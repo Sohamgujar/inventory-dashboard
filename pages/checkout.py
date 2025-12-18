@@ -50,10 +50,20 @@ st.subheader("🧾 Cart")
 
 if st.session_state.cart:
     grand_total = 0
-    for item in st.session_state.cart:
-        st.write(
-            f"{item['name']} | Qty: {item['qty']} | ₹{item['total']}"
-        )
+
+    for index, item in enumerate(st.session_state.cart):
+        col1, col2 = st.columns([4, 1])
+
+        with col1:
+            st.write(
+                f"{item['name']} | Qty: {item['qty']} | ₹{item['total']}"
+            )
+
+        with col2:
+            if st.button("❌ Remove", key=f"remove_{index}"):
+                st.session_state.cart.pop(index)
+                st.rerun()
+
         grand_total += item["total"]
 
     st.markdown(f"### 💰 Total: ₹ {grand_total}")
