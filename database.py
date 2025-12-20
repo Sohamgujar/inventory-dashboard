@@ -56,6 +56,12 @@ try:
 except:
     pass
 
+# Ensure delivery status column exists (cloud-safe)
+try:
+    cursor.execute("ALTER TABLE home_delivery_orders ADD COLUMN status TEXT DEFAULT 'Pending'")
+    conn.commit()
+except:
+    pass
 
 
 conn.commit()

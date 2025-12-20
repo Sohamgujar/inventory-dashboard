@@ -53,3 +53,33 @@ else:
             st.markdown(
                 f"### 💰 Order Total: ₹ {items_df['Total'].sum()}"
             )
+
+    # ================= ADDITIONS START HERE =================
+
+    st.divider()
+
+    # -------- TOTAL INCOME --------
+    st.subheader("💰 Total Income")
+
+    total_income = orders_df["Total Amount"].sum()
+    st.markdown(f"## ₹ {total_income}")
+
+    st.divider()
+
+    # -------- DAY-WISE SALES --------
+    st.subheader("📅 Day-wise Sales")
+
+    orders_df["Date"] = pd.to_datetime(
+        orders_df["Date & Time"]
+    ).dt.date
+
+    day_wise_sales = (
+        orders_df
+        .groupby("Date")["Total Amount"]
+        .sum()
+        .reset_index()
+    )
+
+    day_wise_sales.columns = ["Date", "Total Sales"]
+
+    st.dataframe(day_wise_sales, use_container_width=True)
