@@ -1,6 +1,9 @@
 import streamlit as st
 import pandas as pd
-from db import conn, cursor
+from db import conn, cursor, reset_transaction
+
+reset_transaction()
+
 
 st.title("🛒 Checkout & Billing")
 
