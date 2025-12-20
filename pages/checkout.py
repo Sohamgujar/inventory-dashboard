@@ -64,6 +64,7 @@ else:
     st.markdown(f"### 💰 Total: ₹ {total_amount}")
 
     if st.button("Place Order"):
+        reset_transaction()
         cursor.execute(
             'INSERT INTO "public"."orders" (total_amount) VALUES (%s) RETURNING order_id',
             (total_amount,)
