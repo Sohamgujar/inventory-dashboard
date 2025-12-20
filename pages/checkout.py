@@ -66,14 +66,15 @@ else:
 
     if st.button("Place Order"):
         cursor.execute(
-            "INSERT INTO orders (total_amount) VALUES (%s) RETURNING order_id",
-            (total_amount,)
-        )
+    "INSERT INTO public.orders (total_amount) VALUES (%s) RETURNING order_id",
+    (total_amount,)
+)
+
         order_id = cursor.fetchone()[0]
 
         for item in st.session_state.cart:
             cursor.execute("""
-                INSERT INTO order_items (order_id, product_id, quantity, price)
+                INSERT INTO public.order_items (order_id, product_id, quantity, price)
                 VALUES (%s, %s, %s, %s)
             """, (
                 order_id,
@@ -83,9 +84,10 @@ else:
             ))
 
             cursor.execute("""
-                UPDATE products
+                UPDATE public.products
                 SET quantity = quantity - %s
                 WHERE product_id = %s
+
             """, (
                 item["quantity"],
                 item["product_id"]
