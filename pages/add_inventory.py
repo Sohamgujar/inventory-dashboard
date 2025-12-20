@@ -1,9 +1,5 @@
 import streamlit as st
-import sqlite3
-
-# Connect to database
-conn = sqlite3.connect("inventory.db", check_same_thread=False)
-cursor = conn.cursor()
+from db import conn, cursor
 
 st.title("➕ Add Inventory")
 
@@ -19,13 +15,14 @@ with st.form("add_product_form"):
 if submit:
     if name and category:
         cursor.execute("""
-        INSERT INTO products (name, category, cost_price, selling_price, quantity)
-        VALUES (?, ?, ?, ?, ?)
+            INSERT INTO products
+            (name, category, cost_price, selling_price, quantity)
+            VALUES (%s, %s, %s, %s, %s)
+            RETURNING product_id
         """, (name, category, cost_price, selling_price, quantity))
 
+        product_id = cursor.fetchone()[0]
         conn.commit()
-
-        product_id = cursor.lastrowid
 
         st.success(f"Product added successfully! Product ID: {product_id}")
     else:
