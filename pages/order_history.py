@@ -1,9 +1,10 @@
 import streamlit as st
-import sqlite3
+
 import pandas as pd
 
 # DB connection
-conn = sqlite3.connect("inventory.db", check_same_thread=False)
+from db import conn, cursor
+
 cursor = conn.cursor()
 
 st.title("📜 Order History")

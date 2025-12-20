@@ -1,14 +1,21 @@
+import streamlit as st
 import psycopg2
-import os
 
-DATABASE_URL = os.environ.get("DATABASE_URL")
+st.write("🔍 Secrets available:", st.secrets)
+
+DATABASE_URL = st.secrets.get("DATABASE_URL", None)
+
+st.write("🔗 DATABASE_URL value:", DATABASE_URL)
+
+if DATABASE_URL is None:
+    st.error("❌ DATABASE_URL not found in secrets")
+    st.stop()
 
 conn = psycopg2.connect(
     DATABASE_URL,
     sslmode="require"
 )
 
-conn.autocommit = False
 cursor = conn.cursor()
 
 def reset_transaction():

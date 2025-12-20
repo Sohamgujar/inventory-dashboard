@@ -1,6 +1,5 @@
-import sqlite3
+from db import conn, cursor
 
-conn = sqlite3.connect("inventory.db", check_same_thread=False)
 cursor = conn.cursor()
 
 # Products table
